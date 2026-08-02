@@ -18,7 +18,7 @@ BrightCart sells across 8 product categories through four channels — website, 
 
 3. How much revenue is lost to returns, by category and channel?
 <img width="377" height="372" alt="4" src="https://github.com/user-attachments/assets/9119501e-0d9a-4795-afe1-e6de4a88044b" />
-<img width="377" height="372" alt="4" src="https://github.com/user-attachments/assets/9bc9ced5-2485-4f65-976f-84e9de573927" />
+
 <img width="377" height="374" alt="3" src="https://github.com/user-attachments/assets/fbb1fe04-bcee-45b1-9a83-29015efd7ca1" />
 
 4. Which marketing platform delivers the best ROAS — and which one is burning cash?

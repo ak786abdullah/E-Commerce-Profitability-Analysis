@@ -17,7 +17,6 @@ BrightCart sells across 8 product categories through four channels — website, 
 <img width="373" height="375" alt="2" src="https://github.com/user-attachments/assets/9d1637d2-299b-4e5b-a799-302ab9edaa6c" />
 
 3. How much revenue is lost to returns, by category and channel?
-<img width="377" height="372" alt="4" src="https://github.com/user-attachments/assets/9119501e-0d9a-4795-afe1-e6de4a88044b" />
 
 <img width="377" height="374" alt="3" src="https://github.com/user-attachments/assets/fbb1fe04-bcee-45b1-9a83-29015efd7ca1" />
 

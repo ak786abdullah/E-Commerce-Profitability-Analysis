@@ -11,10 +11,23 @@
 BrightCart sells across 8 product categories through four channels — website, mobile app, third-party marketplace, and social commerce. Over a 24-month period the company generated $1M+ in gross revenue, but net margins were shrinking and leadership couldn't say why. This project answers five questions a CEO would actually ask:
 
 1. Which product categories are most/least profitable, and what's driving the difference?
-3. Which sales channel delivers the best profit per order after fees?
-4. How much revenue is lost to returns, by category and channel?
-5. Which marketing platform delivers the best ROAS — and which one is burning cash?
-6. If we cut 20% of the marketing budget, exactly which platforms and months should go?
+<img width="380" height="377" alt="1" src="https://github.com/user-attachments/assets/1f8bf946-fe3d-4dca-9c91-491408077077" />
+
+2. Which sales channel delivers the best profit per order after fees?
+<img width="373" height="375" alt="2" src="https://github.com/user-attachments/assets/9d1637d2-299b-4e5b-a799-302ab9edaa6c" />
+
+3. How much revenue is lost to returns, by category and channel?
+<img width="377" height="372" alt="4" src="https://github.com/user-attachments/assets/9119501e-0d9a-4795-afe1-e6de4a88044b" />
+<img width="377" height="372" alt="4" src="https://github.com/user-attachments/assets/9bc9ced5-2485-4f65-976f-84e9de573927" />
+<img width="377" height="374" alt="3" src="https://github.com/user-attachments/assets/fbb1fe04-bcee-45b1-9a83-29015efd7ca1" />
+
+4. Which marketing platform delivers the best ROAS — and which one is burning cash?
+<img width="377" height="372" alt="4" src="https://github.com/user-attachments/assets/db397234-384c-4323-8588-2ae59d1c1de3" />
+
+5. If we cut 20% of the marketing budget, exactly which platforms and months should go?
+<img width="378" height="374" alt="5" src="https://github.com/user-attachments/assets/dd979e69-ddd8-452a-bb50-82bc3bc60d24" />
+
+
 
 ## Tech Stack
 

@@ -162,6 +162,3 @@ cp .env.example .env   # add your MySQL password
 **Muhammad Abdullah** — Data & BI Analyst | BSc Mathematics
 GitHub: [ak786abdullah](https://github.com/ak786abdullah)
 
-## License
-
-MIT

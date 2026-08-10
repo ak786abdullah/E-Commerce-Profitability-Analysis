@@ -1,5 +1,5 @@
 -- Question : What is the return rate by category and channel?
-alter view vv_return_rate_by_category_channel as
+create view vv_return_rate_by_category_channel as
 SELECT 
 	channel,
     primary_category as category,

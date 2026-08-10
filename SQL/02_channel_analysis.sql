@@ -1,7 +1,7 @@
 -- QUESTION: 
 -- How does profitability differ across sales channels (Website, Mobile App, Marketplace, Social Commerce)? Which channel has the best and worst profit per order after
 --  accounting for platform fees?
-alter view vv_channel_analysis as 
+create view vv_channel_analysis as 
 SELECT 
 	channel,
 	ROUND(SUM(gross_revenue) / COUNT(DISTINCT order_id), 2) AS average_order_value,

@@ -1,6 +1,6 @@
 -- What is the average profit margin by product category? Which categories are the most and least profitable, 
 use e_commerce_profitability_analysis ;
-alter view vv_category_profitability as 
+create view vv_category_profitability as 
  select
 	primary_category as category,
     round(SUM(gross_revenue),2) AS total_revenue,

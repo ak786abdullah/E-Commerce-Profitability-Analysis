@@ -5,6 +5,9 @@ import os
 
 load_dotenv()
 
+marketing_spend = pd.read_csv('cleaned_marketing_spend.csv')
+order_data = pd.read_csv('cleaned_order_data.csv')
+product_data = pd.read_csv('cleaned_product_data.csv')
 
 db_password = os.getenv("DB_PASSWORD")
 

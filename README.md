@@ -4,7 +4,6 @@ A full-funnel profitability audit for a multi-channel e-commerce retailer: from 
 
 > **Note:** BrightCart is a fictional retailer used in a practice project brief from Analyst Builder. The business scenario and dataset are provided by that platform; the data cleaning, SQL modeling, profit-formula correction, findings and presentation below are original work.
 
-**Time investment:** ~20 hours across 10 days (2 hours/day), completed alongside other work.
 
 ## The Business Problem
 

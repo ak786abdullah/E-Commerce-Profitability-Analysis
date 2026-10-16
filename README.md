@@ -1,200 +1,34 @@
-# BrightCart E-Commerce Profitability Analysis
-
-A full-funnel profitability audit for a multi-channel e-commerce retailer: from raw CSVs to recommendation-first findings and a stakeholder slide deck.
-
-> **Note:** BrightCart is a fictional retailer used in a practice project brief from Analyst Builder. The business scenario and dataset are provided by that platform; the data cleaning, SQL modeling, profit-formula correction, findings and presentation below are original work.
-
-
-## The Business Problem
-
-BrightCart sells across 8 product categories through four channels: website, mobile app, third-party marketplace, and social commerce. Over a 24-month period the company generated about $278K in gross revenue (across 8 categories), but net margins were shrinking and leadership couldn't say why. This project answers five questions a CEO would actually ask:
-
-1. Which product categories are most and least profitable, and what drives the difference?
-2. Which sales channel delivers the best profit per order after fees?
-3. How much revenue is lost to returns, by category and channel?
-4. Which marketing platform delivers the best ROAS, and which one is burning cash?
-5. If we cut 20% of the marketing budget, exactly which platforms and months should go?
-
-## Tech Stack
-
-| Stage | Tool | Why |
-|---|---|---|
-| Data cleaning & QA | Python (Pandas, Matplotlib) | Fast to profile, visualize outliers, and iterate on cleaning rules |
-| Data warehousing | MySQL (loaded via SQLAlchemy) | Set-based, multi-dimensional aggregation is what SQL is built for |
-| Analysis | SQL (views, window functions, conditional aggregation) | Reusable, auditable logic per business question |
-| Presentation | Slide deck (PDF) | Recommendation-first format for a non-technical stakeholder |
-
-## Methodology
-
-1. **Extract:** load the three raw CSVs (orders, product catalog, marketing spend).
-2. **Clean & validate in Python:** reusable functions check data types, duplicates, missing values, IQR-based outliers, and categorical consistency before anything reaches SQL.
-3. **Define cost and profit explicitly:** rather than trusting a pre-built column, `total_costs` and `profit` are derived directly so every downstream number is traceable:
-
-```python
-order_data['total_costs'] = (
-    order_data['product_cost']
-    + order_data['shipping_cost']
-    + order_data['transaction_fee']
-    + order_data['platform_fee']
-)
+BrightCart E-Commerce Profitability AnalysisA full-funnel profitability and marketing audit for a multi-channel e-commerce retailer: moving from raw CSV ingestion in MySQL to SQL-validated net margin modeling, root-cause cost analysis, and a recommendation-first executive presentation.Note: BrightCart is a fictional retailer used in a practice project brief from Analyst Builder. The business scenario and dataset are provided by that platform; the ELT architecture, SQL data validation, v1-to-v2 accounting correction, findings, and executive deck below are original work.The Business ProblemBrightCart sells across 8 product categories through four sales channels: Website, Mobile App, Marketplace, and Social Commerce. Over a 24-month period (2,000 orders), the company generated $277,969.13 in gross revenue ($236,318.37 in net revenue after discounts and refunds), but net margins were shrinking and leadership needed to know why.This project answers five questions a CEO would actually ask:Category Profitability: What is the true net profit margin by product category, which categories are the most and least profitable, and what drives the gap (product cost, shipping, returns, or discounts)?Channel Profitability: How does net profitability differ across sales channels, and which channel delivers the best and worst net profit per order after platform fees?Returns Impact: What is the return rate by category and channel, and how much gross revenue was lost to returns over the 24-month period?Marketing Efficiency: Which advertising platform delivers the best ROAS (Return on Ad Spend), and are any platforms burning cash below break-even?Budget Optimization: If the CEO cuts 20% of the marketing budget, exactly which platforms and months should be reduced?Tech Stack & ArchitectureStageToolWhyData Ingestion (ELT)MySQL (Direct CSV Import)Eliminates intermediate script mutations; preserves raw financial columns for auditabilityData Validation & QAMySQL (00_validation_checks.sql)Set-based verification of grain uniqueness, cost equations, and refund/discount nettingProfitability & ROI ModelingMySQL (Views, CTEs, Window Functions)Reusable, auditable logic (DENSE_RANK, SUM() OVER, conditional CASE aggregations)Executive PresentationSlide Deck (HTML / PDF)Recommendation-first visual narrative for non-technical stakeholdersMethodology & Why We Upgraded from v1 to v2 (Engineering Audit)A major strength of this project is the transition from an initial v1 ETL approach to a rigorous v2 ELT accounting methodology:Why the Previous Approach (v1) Was FlawedIn v1, raw CSVs were loaded into Python first, where profit was manually overwritten using the formula:# Flawed v1 formula in Python:
 order_data['profit'] = order_data['gross_revenue'] - order_data['total_costs']
-```
 
-4. **Load to MySQL:** SQLAlchemy + python-dotenv push cleaned DataFrames into tables without hardcoding credentials.
-5. **Analyze in SQL:** five views, each answering one business question, using window functions (`DENSE_RANK`, cumulative `SUM`) and conditional aggregation (`CASE WHEN` inside `SUM`/`COUNT`).
-6. **Present:** findings translated into a six-slide, recommendation-first deck (see [Presentation](#presentation)).
-
-## Key Findings
-
-### 1. Category profitability
-
-Electronics is the most profitable category (41.54% margin); Books is the least (25.95%), a gap of about 15.6 percentage points. Shipping cost is the main driver: it takes 14.44 percentage points more of revenue in Books than in Electronics (27.94% vs 13.50%), which accounts for about 93% of the 15.59-point gap. Product cost adds 1.96 points, partly offset by Electronics paying 0.81 points more in transaction and platform fees. Return rates (8.61% Electronics vs 8.37% Books) do not explain the gap.
-
-| Category | Profit margin |
-|---|---|
-| Electronics | 41.54% |
-| Food & Beverage | 37.44% |
-| Toys | 36.52% |
-| Home & Kitchen | 36.30% |
-| Sports | 33.96% |
-| Clothing | 33.07% |
-| Beauty | 27.75% |
-| Books | 25.95% |
-
-The mean margin across the eight categories is 34.1% (a simple average of category margins). Weighted by revenue, the overall margin is 35.25% ($97,985 profit on $277,969 revenue).
-
-**Recommendation:** implement a minimum order value for free shipping on Books to protect net margins.
-
-### 2. Channel profitability
-
-Mobile App and Website are effectively tied at the top (38.95% vs 38.94% margin; $54.71 vs $54.46 profit per order). Social Commerce has the highest return rate (9.14%) and a 29.83% margin. Marketplace has the lowest margin and profit per order even though it has the lowest return rate (6.44%), so returns do not explain its weakness. Average order values are similar across channels ($134 to $140).
-
-| Channel | Avg order value | Profit margin | Return rate | Profit per order |
-|---|---|---|---|---|
-| Mobile App | $140.45 | 38.95% | 7.30% | $54.71 |
-| Website | $139.83 | 38.94% | 7.04% | $54.46 |
-| Social Commerce | $134.25 | 29.83% | 9.14% | $40.04 |
-| Marketplace | $137.55 | 25.30% | 6.44% | $34.79 |
-
-### 3. Returns
-
-**$22,206.76** in revenue was lost to returns overall (7.99% of gross revenue; 144 of 2,000 orders were returned). Social Commerce has the highest return rate overall (9.14%), peaking at 13.33% in Clothing, though it is low in other categories (3.70% in Beauty). Marketplace has the lowest overall return rate but the widest spread across categories, from 1.61% in Food & Beverage to 11.67% in Clothing; Mobile App is the most consistent (4.76% to 9.47%). Each of the 32 channel-category combinations covers only a few dozen orders, so single-cell differences are indicative rather than conclusive. The table shows the eight highest and two lowest combinations.
-
-| Channel & category | Return rate |
-|---|---|
-| Social Commerce, Clothing | 13.33% |
-| Social Commerce, Home & Kitchen | 13.04% |
-| Social Commerce, Books | 13.04% |
-| Social Commerce, Food & Beverage | 12.50% |
-| Marketplace, Clothing | 11.67% |
-| Website, Electronics | 9.90% |
-| Mobile App, Sports | 9.47% |
-| Website, Books | 9.09% |
-| Marketplace, Sports | 1.92% |
-| Marketplace, Food & Beverage | 1.61% |
-
-### 4. Marketing ROAS
-
-TikTok Ads leads at 24.02x ROAS with the lowest cost per acquisition ($3.06). Email Marketing is the least efficient at 4.81x ROAS, with a cost per acquisition of $17.86 (about 5.8x TikTok's) and a cost per click of $0.94 (about 6x TikTok's). No platform has an aggregate ROAS below 1.0x; the only platform-month below 1.0x is Email in December 2025 (0.67x).
-
-| Platform | ROAS | Cost per acquisition | Cost per click |
-|---|---|---|---|
-| TikTok Ads | 24.02x | $3.06 | $0.15 |
-| Influencer Campaigns | 22.70x | $3.39 | $0.17 |
-| Instagram Ads | 15.73x | $4.70 | $0.21 |
-| Google Ads | 14.38x | $4.72 | $0.25 |
-| Facebook Ads | 11.45x | $6.27 | $0.32 |
-| Email Marketing | 4.81x | $17.86 | $0.94 |
-
-### 5. Budget reallocation
-
-The marketing table holds 144 platform-months (6 platforms × 24 months) and $503,506.14 in total spend, so a 20% cut is about $100,701. A cumulative-spend window function ranks platform-months by ROAS (lowest first). The **34 lowest-ROAS platform-months** are the smallest set that reaches the target, totaling **$104,532.02 (20.76% of budget)**.
-
-| Platform | Platform-months cut | Spend cut | Share of the cut | Share of that platform's spend |
-|---|---|---|---|---|
-| Facebook Ads | 7 | $36,589 | 35.0% | 34.4% |
-| Google Ads | 4 | $20,920 | 20.0% | 13.7% |
-| Influencer | 4 | $16,985 | 16.2% | 17.4% |
-| Email Marketing | 15 | $16,927 | 16.2% | 69.2% |
-| Instagram Ads | 2 | $8,696 | 8.3% | 13.3% |
-| TikTok Ads | 2 | $4,414 | 4.2% | 7.7% |
-
-- Email has the most platform-months in the cut (15) and the weakest single month (0.67x in December 2025), and about 69% of its budget is cut. But Email is only 4.9% of total spend, so most of the dollars come from Facebook and Google (55% combined).
-- The selected platform-months range from 0.67x to 6.60x ROAS. The cutoff is set by the 20% target, not by a break-even threshold, and only one platform-month is below 1.0x.
-- Adding the next platform-month (TikTok, July 2025, 6.63x, $3,326.90) would bring the total to $107,858.92 (21.42% of budget).
-
-**Recommendation:** suspend the identified low-performing platform-months and redeploy that spend toward higher-performing campaigns.
-
-## Methodology Notes
-
-- `profit` is calculated explicitly as `gross_revenue − (product_cost + shipping_cost + transaction_fee + platform_fee)`, not pulled from a pre-built column, so every figure above is auditable back to raw data. Marketing spend is analyzed separately through ROAS and is not deducted from profit.
-- Category and channel margins are revenue-weighted (`SUM(profit) / SUM(gross_revenue)`), the standard way to report a blended margin across orders of different sizes. The 34.1% figure above is the exception: a simple mean of the eight category margins.
-- Returned orders still contribute their full revenue and profit to the category and channel views. The $22,206.76 return-revenue figure is reported separately rather than subtracted from margin. Netting it out is the next planned refinement.
-- ROAS is last-touch (no multi-touch attribution). It is calculated as attributed revenue ÷ spend from the separate `marketing_spend` table, so it is best read as a relative ranking across platforms; it is not reconciled to the revenue in the `orders` table.
-
-## Presentation
-
-The deck (`presentation/BrightCart_Profitability_Analysis.pdf`) walks through the findings in recommendation-first order:
-
-1. Title: E-Commerce Profitability Analysis
-2. Profit Margin Audit: category margins and the shipping-cost driver
-3. Sales Channel Profitability Analysis: profit per order by channel
-4. Return Rate Analysis: $22,206.76 lost to returns, by channel and category
-5. ROAS Performance Audit: platforms ranked by ROAS and CPA
-6. Budget Optimization Strategy: the 34 lowest-ROAS platform-months behind the ~20% budget cut
-
-## Repository Structure
-
-```
-brightcart-profitability-analysis/
+What went wrong in v1:Ignored Discounts & Refunds: Overwriting profit as gross_revenue - total_costs stripped out discount_amount and refund_amount.Inflated Margins: Returned orders (returned = 'Yes') still contributed positive revenue and profit to category and channel views. This artificially inflated overall profit from $56,333.83 (true net) to $97,984.59 (unadjusted gross) and overstated the blended margin as 35.25% instead of 23.84%.Masked Channel Separation: Under unadjusted gross margins, Mobile App (38.95%) and Website (38.94%) looked virtually identical ($54.71 vs. $54.46 per order), hiding Mobile App's true net advantage.How the New Approach (v2) Fixes ItStep 1 — Direct Raw Load to MySQL: Raw CSVs (orders.csv, products.csv, marketing_spend.csv) are loaded directly into MySQL (e_commerce_profitability_analysis) without pre-mutating columns in Python.Step 2 — SQL Accounting Verification (00_validation_checks.sql): Before writing a single analytical query, four SQL verification checks proved how the raw columns interact:Grain Check: COUNT(*) = COUNT(DISTINCT order_id) (2,000 rows = 2,000 unique orders; zero duplicates).Cost Verification: Verified total_costs = product_cost + shipping_cost + transaction_fee + platform_fee.Net Revenue Verification: Verified net_revenue = gross_revenue - (discount_amount + refund_amount). Furthermore, verified that all 144 returned orders (returned = 'Yes') have net_revenue = 0.True Net Profit Verification: Verified profit = net_revenue - total_costs. When an order is returned, net_revenue drops to 0, so profit automatically becomes -total_costs—capturing the exact sunk loss of product, shipping, and fees.Steps 3–7 — Net-Adjusted SQL Views & Window Functions: Built five modular SQL scripts using net_revenue as the margin denominator, dynamic performance_flag comparisons, and ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW window framing.Key Findings1. Category Profitability (01_category_profitability.sql)Electronics is the most profitable category (31.13% net margin), while Books is the least profitable (11.94% net margin)—a 19.19 percentage-point gap.Root Cause: Shipping cost is the primary driver. Relative to net revenue, shipping consumes 33.23% in Books versus 15.91% in Electronics—a 17.32 percentage-point difference that accounts for 90.26% of the entire margin gap.Product cost adds another 2.76 points of pressure on Books (47.52% vs. 44.76%), while return rates (-0.24 pts) and discounts (-0.89 pts) are slightly lower in Books and do not explain its weak margin.v1 vs. v2 Shift: Accounting for discounts and returns reordered the middle categories—Toys (26.15%) and Home & Kitchen (25.37%) moved ahead of Food & Beverage (24.76%), which had ranked 2nd under unadjusted gross margins.CategoryGross RevenueNet RevenueTotal CostGross Profit (v1)Net Profit (v2)Net Margin %Shipping % of Net RevProduct Cost % of Net RevDiscount % of GrossReturn Rate %Electronics$52,876.49$44,885.84$30,912.38$21,964.11$13,973.4631.13%15.91%44.76%7.40%8.61%Toys$38,835.75$33,604.24$24,817.99$14,017.76$8,786.2526.15%21.84%45.28%6.80%7.36%Home & Kitchen$30,683.62$26,359.75$19,671.18$11,012.44$6,688.5725.37%21.88%46.15%7.44%6.70%Food & Beverage$36,085.44$30,664.28$23,072.51$13,012.93$7,591.7724.76%22.97%45.77%6.95%7.51%Sports$37,225.73$32,324.47$24,727.84$12,497.89$7,596.6323.50%21.74%48.35%6.32%6.72%Clothing$37,334.67$31,375.50$25,103.02$12,231.65$6,272.4819.99%25.79%47.74%7.31%9.20%Beauty$22,513.95$18,256.92$15,082.04$7,431.91$3,174.8817.39%31.11%45.06%7.34%7.91%Books$22,413.48$18,847.37$16,597.58$5,815.90$2,249.7911.94%33.23%47.52%6.51%8.37%Total / Blended$277,969.13$236,318.37$179,984.54$97,984.59$56,333.8323.84%22.84%46.29%7.04%7.20%Note: The revenue-weighted net profit margin across all orders is 23.84% ($56,333.83 / $236,318.37). The simple mean across the eight category net margins is 22.53%.2. Sales Channel Profitability (02_channel_analysis.sql)Once discounts, returns, and platform fees are properly netted out, Mobile App breaks away from Website as the clear profitability leader:Mobile App (#1): Generates $36.32 net profit per order at a 29.76% net margin (on a $122.06 net AOV), outperforming Website by $4.72 per order (+2.75 margin points).Marketplace (Lowest): Delivers only $15.40 net profit per order (13.03% net margin) despite having the lowest return rate (6.44%). Heavy third-party platform fees erode its unit economics, leaving Mobile App 2.36x more profitable per order than Marketplace.Social Commerce (#3): Generates $17.11 net profit per order (15.37% net margin), dragged down by both platform fees and the highest return rate (9.14%).ChannelNet AOVNet Profit Margin %Return Rate %Net Profit per Order (v2)Gross Profit per Order (v1)Performance FlagMobile App$122.0629.76%7.30%$36.32$54.71Highest_profitWebsite$116.9727.01%7.04%$31.60$54.46--Social Commerce$111.3215.37%9.14%$17.11$40.04--Marketplace$118.1513.03%6.44%$15.40$34.79lowest_profit3. Return Rate Analysis (03_return_rate_analysis.sql)Across 2,000 total orders, 144 orders were returned (7.20% order return rate), resulting in $22,206.76 in lost gross revenue (7.99% of total gross revenue).Social Commerce Hotspots: Social Commerce owns the four highest return-rate combinations out of all 32 channel-category pairs: Clothing (13.33%), Home & Kitchen (13.04%), Books (13.04%), and Food & Beverage (12.50%).Marketplace Spread: Marketplace has the lowest overall return rate (6.44%), ranging from 1.61% in Food & Beverage and 1.92% in Sports up to 11.67% in Clothing.RankChannel & Category CombinationReturn Rate %Segment Type1Social Commerce — Clothing13.33%Highest Return Hotspot2Social Commerce — Home & Kitchen13.04%Highest Return Hotspot3Social Commerce — Books13.04%Highest Return Hotspot4Social Commerce — Food & Beverage12.50%Highest Return Hotspot5Marketplace — Clothing11.67%High Return Hotspot6Website — Electronics9.90%Moderate-High7Mobile App — Sports9.47%Moderate-High8Website — Books9.09%Moderate-High31Marketplace — Sports1.92%Lowest Return32Marketplace — Food & Beverage1.61%Lowest Return4. Marketing ROI by Platform (04_marketing_roi.sql)BrightCart spent $503,506.14 across 6 advertising platforms over 24 months, generating $8,146,615.20 in attributed revenue (16.18x blended ROAS).Top Performers: TikTok Ads leads efficiency at 24.02x ROAS with the lowest CPA ($3.06) and CPC ($0.15), generating $1.37M in attributed revenue on just $57.2K spend. Influencer ranks a close second at 22.70x ROAS ($3.39 CPA) and drives the highest total attributed revenue ($2.22M).Budget Mismatch: Google Ads ($152.5K spend, 14.38x ROAS) and Facebook Ads ($106.5K spend, 11.45x ROAS) absorb 51.4% of the total marketing budget, while TikTok Ads receives only 11.4%.Are Any Platforms Negative? No platform has an aggregate ROAS below 1.0x. Email Marketing is the least efficient at 4.81x ROAS ($17.86 CPA; $0.94 CPC), and only 1 out of 144 platform-months drops below break-even: Email Marketing in December 2025 (0.67x ROAS, $163.33 CPA, $3.77 CPC).PlatformTotal SpendShare of SpendTotal Attributed RevenueROASCost Per Acquisition (CPA)Cost Per Click (CPC)TikTok Ads$57,229.2211.37%$1,374,627.1724.02x$3.06$0.15Influencer$97,663.1219.40%$2,216,974.2622.70x$3.39$0.17Instagram Ads$65,154.0212.94%$1,024,639.0615.73x$4.70$0.21Google Ads$152,546.4830.30%$2,194,120.8314.38x$4.72$0.25Facebook Ads$106,451.9321.14%$1,218,572.4311.45x$6.27$0.32Email Marketing$24,461.374.86%$117,681.454.81x$17.86$0.94Total / Blended$503,506.14100.00%$8,146,615.2016.18x$4.74$0.235. 20% Marketing Budget Cut Strategy (05_budget_reallocation.sql)To hit the CEO's 20% budget reduction target (~$100,701), a SQL window function (SUM(spend) OVER (ORDER BY roas ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)) ranked all 144 platform-months from lowest to highest ROAS and filtered for cumulative_pct_of_budget < 21.The Cut Set: The 34 lowest-ROAS platform-months (ranging from 0.67x to 6.60x ROAS) total $104,532.02, representing 20.76% of the total budget.Minimal Revenue Impact: Cutting 20.76% of spend sacrifices only $476,227.64 in attributed revenue—just 5.85% of total attributed revenue (blended ROAS of the cut set is 4.56x vs. 19.22x on the retained budget).Where the Dollars Come From: While Email Marketing has the most months cut (15 of 24 months, or 69.2% of Email's budget), it accounts for only 16.19% of the dollar savings. Facebook Ads ($36,589.02 across 7 months) and Google Ads ($20,919.54 across 4 months) supply 55.01% of the total savings.PlatformPlatform-Months CutSpend Cut ($)Share of Cut (%)Share of Platform's Total Budget Cut (%)ROAS Range in CutAvg CPA in CutAvg CPC in CutFacebook Ads7$36,589.0235.00%34.37%2.51x – 6.60x$12.23$0.44Google Ads4$20,919.5420.01%13.71%3.32x – 4.27x$13.70$0.35Influencer4$16,985.1416.25%17.39%3.78x – 5.83x$10.53$0.25Email Marketing15$16,927.4616.19%69.20%0.67x – 6.57x$35.07$1.34Instagram Ads2$8,696.448.32%13.35%5.19x – 5.76x$10.12$0.26TikTok Ads2$4,414.424.22%7.71%6.01x – 6.28x$8.55$0.17Total Cut34$104,532.02100.00%20.76% of Total Spend0.67x – 6.60x$22.17$0.78Executive Summary: Top 3 RecommendationsTrim 34 Low-ROAS Platform-Months to Save $104,532 (20.76% of Ad Budget) with <6% Revenue Impact:
+Cap monthly spend during historical low-ROAS troughs—specifically targeting Facebook Ads (7 months, saving $36,589), Google Ads (4 months, saving $20,920), and Email Marketing (15 months, saving $16,927, including the money-losing 0.67x Dec 2025 campaign). Redeploy a portion of those savings into TikTok Ads (24.02x ROAS, $3.06 CPA) and Influencer (22.70x ROAS, $3.39 CPA).Enforce Free-Shipping Order Thresholds on Books & Beauty to Recover Margin:
+Shipping eats 33.23% of net revenue in Books (11.94% net margin) and 31.11% in Beauty (17.39% net margin), driving 90.3% of the 19.19-point margin gap against Electronics (31.13% net margin). Introducing a minimum order value (e.g., $35+ bundle threshold) for free shipping or a flat $4.99 shipping fee on single-item Book/Beauty orders directly protects unit margins.Shift Acquisition Traffic to Mobile App ($36.32 Profit/Order) & Curb Social Commerce Clothing Returns (13.33%):
+Mobile App generates 2.36x more net profit per order than Marketplace ($36.32 vs. $15.40) and $19.21 more per order than Social Commerce ($17.11). Incentivize repeat Marketplace/Social buyers onto the Mobile App via app-exclusive loyalty perks, and add virtual sizing/fit guides to Social Commerce Clothing listings to cut the $22,206.76 lost to returns.Repository Structurebrightcart-profitability-analysis/
 ├── README.md
-├── requirements.txt
-├── .env.example
-├── .gitignore
 ├── data/
 │   ├── raw/
 │   │   ├── orders.csv
 │   │   ├── products.csv
 │   │   └── marketing_spend.csv
-│   └── processed/
-├── notebooks/
-│   └── 01_data_cleaning_and_quality_checks.ipynb
-├── src/
-│   ├── data_quality.py
-│   └── load_to_mysql.py
+│   └── outputs/
+│       ├── result_of_01_category_profitability.csv
+│       ├── result_of_01_0_margin_drivers.csv
+│       ├── result_of_02_channel_analysis.csv
+│       ├── result_of_03_return_rate_matrix.csv
+│       ├── result_of_03_0_lost_revenue_summary.csv
+│       ├── result_of_04_marketing_roi.csv
+│       └── result_of_05_budget_cut_34_months.csv
 ├── sql/
+│   ├── 00_validation_checks.sql
 │   ├── 01_category_profitability.sql
 │   ├── 02_channel_analysis.sql
 │   ├── 03_return_rate_analysis.sql
 │   ├── 04_marketing_roi.sql
 │   └── 05_budget_reallocation.sql
 └── presentation/
-    └── BrightCart_Profitability_Analysis.pdf
-```
+    └── BrightCart_Profitability_Deck.html
 
-## How to Reproduce
+How to ReproduceCreate the local MySQL schema:CREATE DATABASE e_commerce_profitability_analysis;
 
-```bash
-git clone https://github.com/<your-username>/brightcart-profitability-analysis.git
-cd brightcart-profitability-analysis
-python -m venv venv && source venv/bin/activate    # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env   # add your MySQL password
-```
-
-1. Run `notebooks/01_data_cleaning_and_quality_checks.ipynb` to clean the raw CSVs and build `total_costs` / `profit`.
-2. Run `src/load_to_mysql.py` to load the cleaned tables into MySQL.
-3. Run the scripts in `sql/` (in order) to build the five analysis views.
-4. Query each view to reproduce the findings above.
-
-## Next Steps
-
-- Net returned-order revenue and profit out of the category and channel views for a fully loss-adjusted margin figure
-- Automate the ETL step with a scheduler so the views stay current monthly
-- Build an interactive Power BI or Tableau layer on top of the MySQL views for stakeholders who want to self-serve
-- Extend the marketing model to account for multi-touch attribution instead of last-touch ROAS
-
-## Author
-
-**Muhammad Abdullah**: Data & BI Analyst | BSc Mathematics
-GitHub: [ak786abdullah](https://github.com/ak786abdullah)
+Import the three raw CSVs (orders.csv, products.csv, marketing_spend.csv) directly into e_commerce_profitability_analysis using MySQL Workbench Table Data Import Wizard or LOAD DATA INFILE.Run sql/00_validation_checks.sql to verify grain uniqueness and confirm that net_revenue and profit properly account for discounts, returns, and total costs.Run sql/01_category_profitability.sql through sql/05_budget_reallocation.sql in sequence to create the analytical views and reproduce all output CSVs.AuthorMuhammad Abdullah — Data & BI Analyst | BSc MathematicsGitHub: ak786abdullah

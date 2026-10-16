@@ -1,0 +1,33 @@
+channel,category,return_rate_pct
+"Mobile App",Electronics,7.69
+Website,Beauty,5.95
+Website,Toys,6.31
+"Mobile App",Sports,9.47
+Marketplace,Sports,1.92
+"Mobile App",Toys,8.00
+Marketplace,Clothing,11.67
+Website,Sports,8.26
+Website,"Food & Beverage",5.75
+Marketplace,Books,7.84
+"Social Commerce",Clothing,13.33
+"Social Commerce",Beauty,3.70
+"Mobile App",Beauty,6.90
+"Social Commerce",Sports,4.17
+Website,Electronics,9.90
+"Social Commerce","Home & Kitchen",13.04
+Marketplace,Toys,8.33
+Marketplace,"Home & Kitchen",6.67
+Website,"Home & Kitchen",4.35
+"Mobile App","Food & Beverage",6.76
+Marketplace,Beauty,5.56
+Website,Clothing,5.97
+"Mobile App",Clothing,7.25
+"Social Commerce",Books,13.04
+Marketplace,Electronics,7.69
+Marketplace,"Food & Beverage",1.61
+"Mobile App","Home & Kitchen",4.76
+Website,Books,9.09
+"Mobile App",Books,6.49
+"Social Commerce",Electronics,8.70
+"Social Commerce",Toys,4.35
+"Social Commerce","Food & Beverage",12.50

@@ -1,0 +1,5 @@
+channel,average_order_value,net_profit_margin,return_rate,profit_per_order,performance_flag
+Marketplace,118.15,13.03,6.44,15.4,lowest_profit
+"Social Commerce",111.32,15.37,9.14,17.11,--
+Website,116.97,27.01,7.04,31.6,--
+"Mobile App",122.06,29.76,7.30,36.32,Highest_profit

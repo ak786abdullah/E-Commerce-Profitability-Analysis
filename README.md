@@ -16,6 +16,7 @@ This project answers five questions from the CEO:
 3. **Return Rate & Revenue Loss:** What is the return rate by category and channel, and how much total revenue was lost to returns over the 24-month period?
 4. **Marketing Efficiency (ROAS):** Which advertising platform delivers the best Return on Ad Spend (ROAS), and are any platforms burning cash without a positive return?
 5. **20% Budget Cut Strategy:** If the CEO cuts 20% of the marketing budget, exactly which platforms and months should be reduced?
+> **Data note:** `marketing_spend` is a separate dataset from `orders` and does not reconcile with it. Attributed revenue ($8,146,615.20) is about 29x the gross order revenue ($277,969.13), and marketing spend ($503,506.14) is about 2.1x net order revenue ($236,318.37). The marketing figures (ROAS, CPA, CPC and the 20% budget cut) are therefore used only to rank platforms and platform-months against each other. They are not compared with, or subtracted from, order profit.
 
 ---
 
